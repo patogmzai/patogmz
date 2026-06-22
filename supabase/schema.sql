@@ -39,6 +39,7 @@ create table if not exists public.opportunities (
   fair_prob   numeric(6,5)  not null check (fair_prob > 0 and fair_prob < 1),
   ev          numeric(8,5)  not null,                       -- EV decimal: 0.04 = +4%
   tier        smallint      not null check (tier between 1 and 5),
+  commence_time timestamptz,                                   -- hora del partido (de la API de momios)
   scanned_at  timestamptz   not null default now()
 );
 

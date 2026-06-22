@@ -1,5 +1,6 @@
-import { Layers, Plus, CircleCheck } from "lucide-react";
+import { Layers, Plus, CircleCheck, Clock } from "lucide-react";
 import { decToAmerican } from "@/lib/betting";
+import { fmtGameTime } from "@/lib/format";
 import { TIER_COLOR, TIER_WORD, LEAGUE_COLOR } from "@/lib/ui";
 import type { ComputedOpportunity } from "@/lib/types";
 
@@ -40,7 +41,10 @@ export default function RecCard({ o, units, muted, inParlay, registered, onAdd, 
           <div className="conf-badge" style={{ background: tc + "22", color: tc, border: "1px solid " + tc + "55" }}>{o.tier}</div>
         </div>
       </div>
-      <div className="matchup disp">{o.match}</div>
+      <div className="matchup disp">
+        {o.match}
+        {o.commence_time && <span className="game-time"><Clock size={11} /> {fmtGameTime(o.commence_time)}</span>}
+      </div>
       <div className="pickline">
         Pick: <b>{o.pick}</b> &nbsp;·&nbsp; <span className="od">{o.effOdds.toFixed(2)}</span>
         <span className="am">{decToAmerican(o.effOdds)}</span>

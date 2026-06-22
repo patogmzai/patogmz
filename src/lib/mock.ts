@@ -39,6 +39,7 @@ export const mockOpportunities: Opportunity[] = rawOpps.map((r, i) => {
     sharp_odds: null,
     ev,
     tier: confTier(ev, r.fair_prob),
+    commence_time: new Date(Date.now() + (i + 1) * 3600 * 1000).toISOString(),
     scanned_at: nowISO(),
     ...r,
   };

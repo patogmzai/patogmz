@@ -36,7 +36,7 @@ const round5 = (n: number) => Math.round(n * 1e5) / 1e5;
 export function marketOpportunities(
   ev: OddsEvent,
   league: LeagueConfig,
-  marketKey: string
+  marketKey: string,
 ): NewOpportunity[] {
   const sharp = ev.bookmakers.find((b) => b.key === SHARP_KEY);
   if (!sharp) return []; // v1: requiere ancla Pinnacle
@@ -79,6 +79,7 @@ export function marketOpportunities(
         fair_prob: round5(p),
         ev: round5(value),
         tier: confTier(value, p),
+        commence_time: ev.commence_time,
       });
     });
   }

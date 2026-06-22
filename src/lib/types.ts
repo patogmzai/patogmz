@@ -28,6 +28,7 @@ export interface Opportunity {
   fair_prob: number;
   ev: number;
   tier: number;
+  commence_time: string | null;
   scanned_at: string;
 }
 
