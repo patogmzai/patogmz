@@ -122,12 +122,16 @@ export default function Dashboard({ initialConfig, initialOpportunities, initial
   const expiradas = computed.filter((o) => o.status === "expirada" && sports[o.sport]);
 
   const dayLabel: Record<string, string> = { hoy: "Hoy", manana: "Mañana", futuro: "Más adelante" };
+  // Excluye longshots extremos (prob < 5%): ahí el de-vig es ruido, no valor real.
+  const MIN_PROB = 0.05;
+  const hasRealValue = (o: ComputedOpportunity) =>
+    o.ev > 0 && o.tier >= minConf && o.fair_prob >= MIN_PROB;
   const countByDay = (day: string) =>
-    vigentes.filter((o) => o.ev > 0 && o.tier >= minConf && dayOf(o) === day).length;
+    vigentes.filter((o) => hasRealValue(o) && dayOf(o) === day).length;
 
   // recomendaciones del día seleccionado, ordenadas por las MEJORES (confianza, luego valor)
   const recs = vigentes
-    .filter((o) => o.ev > 0 && o.tier >= minConf && dayOf(o) === dayTab)
+    .filter((o) => hasRealValue(o) && dayOf(o) === dayTab)
     .sort((a, b) => b.tier - a.tier || b.ev - a.ev);
   const topRecs = recs.slice(0, 3);       // los 3 mejores del día
   const restRecs = recs.slice(3);
