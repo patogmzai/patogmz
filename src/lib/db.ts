@@ -91,7 +91,7 @@ export async function getBets(): Promise<Bet[]> {
 }
 
 export type NewBet = Pick<Bet, "league" | "pick" | "odds" | "stake" | "kind"> &
-  Partial<Pick<Bet, "fair_prob" | "opportunity_id" | "placed_at">>;
+  Partial<Pick<Bet, "fair_prob" | "tier" | "market" | "sport" | "opportunity_id" | "placed_at">>;
 
 export async function addBet(b: NewBet): Promise<Bet> {
   const sb = getSupabaseAdmin();

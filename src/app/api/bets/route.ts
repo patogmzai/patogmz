@@ -34,6 +34,9 @@ export async function POST(req: Request) {
       stake: Math.round(b.stake),
       kind,
       fair_prob: Number.isFinite(b.fair_prob) ? b.fair_prob : null,
+      tier: Number.isInteger(b.tier) && b.tier >= 1 && b.tier <= 5 ? b.tier : null,
+      market: typeof b.market === "string" && b.market.trim() ? b.market.trim() : null,
+      sport: typeof b.sport === "string" && b.sport.trim() ? b.sport.trim() : null,
       opportunity_id: typeof b.opportunity_id === "string" ? b.opportunity_id : null,
     };
     return NextResponse.json(await addBet(bet));

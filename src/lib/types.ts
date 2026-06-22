@@ -63,6 +63,9 @@ export interface Bet {
   result: BetResult;
   kind: BetKind;
   fair_prob: number | null;
+  tier: number | null;     // confianza al apostar (null en manual/parlay) — para "el estudio"
+  market: string | null;   // mercado (ML/total/etc.) — para desgloses
+  sport: string | null;    // deporte — para desgloses
   opportunity_id: string | null;
   created_at: string;
 }

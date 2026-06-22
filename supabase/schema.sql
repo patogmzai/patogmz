@@ -67,6 +67,9 @@ create table if not exists public.bets (
   result         text          not null default 'pending' check (result in ('pending','win','loss','push')),
   kind           text          not null default 'single'  check (kind in ('single','parlay','manual')),
   fair_prob      numeric(6,5)           check (fair_prob > 0 and fair_prob < 1), -- prob. justa del modelo al apostar (null en manual)
+  tier           smallint               check (tier between 1 and 5),  -- confianza al apostar (para "el estudio")
+  market         text,                                       -- mercado (ML/total/etc.) — desgloses
+  sport          text,                                       -- deporte — desgloses
   opportunity_id uuid,                                       -- procedencia (sin FK: opportunities se borra cada escaneo)
   created_at     timestamptz   not null default now()
 );

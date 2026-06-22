@@ -17,7 +17,8 @@ const patch = (url: string, body: unknown) =>
   fetch(url, { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
 const del = (url: string) => fetch(url, { method: "DELETE" });
 
-export type AddBetInput = Pick<Bet, "league" | "pick" | "odds" | "stake" | "kind" | "fair_prob" | "opportunity_id">;
+export type AddBetInput = Pick<Bet, "league" | "pick" | "odds" | "stake" | "kind" | "fair_prob" | "opportunity_id"> &
+  Partial<Pick<Bet, "tier" | "market" | "sport">>;
 export type AddExpertPickInput = Omit<ExpertPick, "id" | "captured_at">;
 
 export const api = {

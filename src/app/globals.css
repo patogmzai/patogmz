@@ -287,6 +287,28 @@ input[type=range]{width:100%;accent-color:var(--gold);height:4px;cursor:pointer;
 @media(max-width:620px){.eform{grid-template-columns:1fr 1fr;}}
 .eform .wide{grid-column:1 / -1;}
 
+/* el estudio (analítica) */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;}
+@media(max-width:620px){.kpi-row{grid-template-columns:1fr 1fr;}}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:15px 16px;min-width:0;}
+.kpi-l{font-size:10.5px;font-family:'IBM Plex Mono';letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-bottom:7px;}
+.kpi-v{font-family:'Space Grotesk';font-weight:700;font-size:24px;letter-spacing:-.4px;}
+.kpi-v.dim{color:var(--dim);}
+.calib{display:flex;gap:11px;align-items:flex-start;border-radius:12px;padding:13px 15px;margin-top:13px;border:1px solid var(--line);background:var(--surface-2);}
+.calib.good{border-color:var(--pos-line);background:var(--pos-soft);color:var(--pos);}
+.calib.bad{border-color:var(--neg-line);background:var(--neg-soft);color:var(--neg);}
+.calib.warn{border-color:var(--gold-line);background:var(--gold-soft);color:var(--gold);}
+.calib svg{flex-shrink:0;margin-top:1px;}
+.calib-t{font-size:13px;font-weight:700;font-family:'Space Grotesk';}
+.calib-s{font-size:12px;color:var(--dim);line-height:1.5;margin-top:3px;}
+.bw-row{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-top:13px;}
+@media(max-width:620px){.bw-row{grid-template-columns:1fr;}}
+.bw{border:1px solid var(--line);border-radius:12px;padding:13px 15px;background:var(--surface);}
+.bw.good{border-color:var(--pos-line);} .bw.bad{border-color:var(--neg-line);}
+.bw-l{font-size:10px;font-family:'IBM Plex Mono';letter-spacing:.1em;text-transform:uppercase;color:var(--faint);}
+.bw-k{font-size:14px;font-weight:600;margin-top:5px;}
+.bw-v{font-family:'IBM Plex Mono';font-size:13px;font-weight:600;margin-top:3px;}
+
 /* login + logout */
 .login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
 .login-card{width:100%;max-width:340px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:28px 26px;}

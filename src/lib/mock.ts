@@ -50,20 +50,20 @@ export const mockOpportunities: Opportunity[] = rawOpps.map((r, i) => {
   };
 });
 
-type SeedBet = Pick<Bet, "league" | "pick" | "odds" | "stake" | "result" | "kind"> & {
+type SeedBet = Pick<Bet, "league" | "pick" | "odds" | "stake" | "result" | "kind" | "tier" | "market" | "sport"> & {
   d: number;
 };
 const seedBets: SeedBet[] = [
-  { d: 2, league: "CHAMPIONS", pick: "PSG -0.5", odds: 2.05, stake: 300, result: "win", kind: "single" },
-  { d: 2, league: "NBA", pick: "Celtics -4.5", odds: 1.91, stake: 300, result: "loss", kind: "single" },
-  { d: 3, league: "LIGA MX", pick: "Cruz Azul ML", odds: 2.3, stake: 260, result: "win", kind: "single" },
-  { d: 3, league: "MLB", pick: "Yankees ML", odds: 1.74, stake: 350, result: "loss", kind: "single" },
-  { d: 3, league: "NFL", pick: "Over 44.5", odds: 1.95, stake: 280, result: "win", kind: "single" },
-  { d: 4, league: "TENIS", pick: "Swiatek ML", odds: 1.55, stake: 300, result: "loss", kind: "single" },
-  { d: 4, league: null, pick: "PSG -0.5 + Over 44.5", odds: 4.0, stake: 150, result: "loss", kind: "parlay" },
-  { d: 5, league: "UFC", pick: "Por KO/TKO", odds: 2.4, stake: 220, result: "win", kind: "single" },
-  { d: 5, league: "NBA", pick: "Lakers +6.5", odds: 1.91, stake: 280, result: "loss", kind: "single" },
-  { d: 6, league: "LIGA MX", pick: "Tigres ML", odds: 2.1, stake: 320, result: "win", kind: "single" },
+  { d: 2, league: "CHAMPIONS", pick: "PSG -0.5", odds: 2.05, stake: 300, result: "win", kind: "single", tier: 5, market: "Hándicap", sport: "futbol" },
+  { d: 2, league: "NBA", pick: "Celtics -4.5", odds: 1.91, stake: 300, result: "loss", kind: "single", tier: 4, market: "Hándicap", sport: "nba" },
+  { d: 3, league: "LIGA MX", pick: "Cruz Azul ML", odds: 2.3, stake: 260, result: "win", kind: "single", tier: 3, market: "Ganador", sport: "futbol" },
+  { d: 3, league: "MLB", pick: "Yankees ML", odds: 1.74, stake: 350, result: "loss", kind: "single", tier: 4, market: "Ganador", sport: "otros" },
+  { d: 3, league: "NFL", pick: "Over 44.5", odds: 1.95, stake: 280, result: "win", kind: "single", tier: 5, market: "Total", sport: "nfl" },
+  { d: 4, league: "TENIS", pick: "Swiatek ML", odds: 1.55, stake: 300, result: "loss", kind: "single", tier: 2, market: "Ganador", sport: "otros" },
+  { d: 4, league: null, pick: "PSG -0.5 + Over 44.5", odds: 4.0, stake: 150, result: "loss", kind: "parlay", tier: null, market: "parlay", sport: null },
+  { d: 5, league: "UFC", pick: "Por KO/TKO", odds: 2.4, stake: 220, result: "win", kind: "single", tier: 3, market: "Método", sport: "otros" },
+  { d: 5, league: "NBA", pick: "Lakers +6.5", odds: 1.91, stake: 280, result: "loss", kind: "single", tier: 2, market: "Hándicap", sport: "nba" },
+  { d: 6, league: "LIGA MX", pick: "Tigres ML", odds: 2.1, stake: 320, result: "win", kind: "single", tier: 4, market: "Ganador", sport: "futbol" },
 ];
 
 export const mockBets: Bet[] = seedBets.map((b, i) => ({
@@ -76,6 +76,9 @@ export const mockBets: Bet[] = seedBets.map((b, i) => ({
   result: b.result,
   kind: b.kind,
   fair_prob: null,
+  tier: b.tier,
+  market: b.market,
+  sport: b.sport,
   opportunity_id: null,
   created_at: daysAgo(b.d),
 }));

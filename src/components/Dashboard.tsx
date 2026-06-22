@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useMemo, useRef, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import {
   Activity, RefreshCw, TrendingUp, ShieldCheck, Wallet, Plus, ChevronDown,
   Info, CircleCheck, CircleX, Clock, Layers, Trash2, PencilLine,
@@ -141,7 +142,7 @@ export default function Dashboard({ initialConfig, initialOpportunities, initial
     setRegistered((r) => ({ ...r, [o.id]: true }));
     const tempId = uid("r");
     const now = new Date().toISOString();
-    const payload = { league: o.league, pick: o.pick, odds: o.effOdds, stake: Math.round(o.stake), kind: "single" as const, fair_prob: o.fair_prob, opportunity_id: o.id };
+    const payload = { league: o.league, pick: o.pick, odds: o.effOdds, stake: Math.round(o.stake), kind: "single" as const, fair_prob: o.fair_prob, tier: o.tier, market: o.market, sport: o.sport, opportunity_id: o.id };
     setLog((l) => [{ id: tempId, placed_at: now, ...payload, result: "pending", created_at: now }, ...l]);
     if (demo) return;
     try {
@@ -161,7 +162,7 @@ export default function Dashboard({ initialConfig, initialOpportunities, initial
     if (pLegs.length < 2) return;
     const tempId = uid("p");
     const now = new Date().toISOString();
-    const payload = { league: null, pick: pLegs.map((o) => o.pick).join(" + "), odds: Number(par.oddsComb.toFixed(2)), stake: Math.round(par.stake), kind: "parlay" as const, fair_prob: Number(par.probComb.toFixed(5)), opportunity_id: null };
+    const payload = { league: null, pick: pLegs.map((o) => o.pick).join(" + "), odds: Number(par.oddsComb.toFixed(2)), stake: Math.round(par.stake), kind: "parlay" as const, fair_prob: Number(par.probComb.toFixed(5)), tier: null, market: "parlay", sport: null, opportunity_id: null };
     setLog((l) => [{ id: tempId, placed_at: now, ...payload, result: "pending", created_at: now }, ...l]);
     setParlayIds([]);
     if (demo) return;
@@ -179,7 +180,7 @@ export default function Dashboard({ initialConfig, initialOpportunities, initial
     if (!mForm.pick.trim() || !(od > 1) || !(st > 0)) return;
     const tempId = uid("m");
     const now = new Date().toISOString();
-    const payload = { league: null, pick: mForm.pick.trim(), odds: od, stake: Math.round(st), kind: "manual" as const, fair_prob: null, opportunity_id: null };
+    const payload = { league: null, pick: mForm.pick.trim(), odds: od, stake: Math.round(st), kind: "manual" as const, fair_prob: null, tier: null, market: null, sport: null, opportunity_id: null };
     setLog((l) => [{ id: tempId, placed_at: now, ...payload, result: "pending", created_at: now }, ...l]);
     setMForm({ pick: "", odds: "", stake: "" });
     if (demo) return;
@@ -229,6 +230,7 @@ export default function Dashboard({ initialConfig, initialOpportunities, initial
             <button className="refresh-btn" onClick={() => startRefresh(() => router.refresh())} disabled={isRefreshing}>
               <RefreshCw size={13} className={isRefreshing ? "spin" : ""} /> {isRefreshing ? "Actualizando…" : "Actualizar"}
             </button>
+            <Link href="/estudio" className="refresh-btn"><TrendingUp size={13} /> El estudio</Link>
             {gated && <button className="logout-link" onClick={logout}>salir</button>}
           </div>
         </header>
@@ -342,7 +344,7 @@ export default function Dashboard({ initialConfig, initialOpportunities, initial
               onRegister={async (pick, odds, stake, fairProb) => {
                 const tempId = uid("ap");
                 const now = new Date().toISOString();
-                const payload = { league: null, pick, odds, stake, kind: "parlay" as const, fair_prob: fairProb, opportunity_id: null };
+                const payload = { league: null, pick, odds, stake, kind: "parlay" as const, fair_prob: fairProb, tier: null, market: "parlay", sport: null, opportunity_id: null };
                 setLog((l) => [{ id: tempId, placed_at: now, ...payload, result: "pending", created_at: now }, ...l]);
                 if (demo) return;
                 try { const saved = await api.addBet(payload); setLog((l) => l.map((b) => (b.id === tempId ? saved : b))); }
