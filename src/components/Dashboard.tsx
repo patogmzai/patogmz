@@ -44,6 +44,7 @@ export default function Dashboard({ initialConfig, initialOpportunities, initial
   const [showMethod, setShowMethod] = useState(false);
   const [showNoValue, setShowNoValue] = useState(false);
   const [showExpired, setShowExpired] = useState(false);
+  const [showAllRecs, setShowAllRecs] = useState(false);
   const [dayTab, setDayTab] = useState<"hoy" | "manana" | "futuro">("hoy");
   const [mForm, setMForm] = useState({ pick: "", odds: "", stake: "" });
 
@@ -124,10 +125,12 @@ export default function Dashboard({ initialConfig, initialOpportunities, initial
   const countByDay = (day: string) =>
     vigentes.filter((o) => o.ev > 0 && o.tier >= minConf && dayOf(o) === day).length;
 
-  // recomendaciones del día seleccionado, con valor y sobre el filtro de confianza
+  // recomendaciones del día seleccionado, ordenadas por las MEJORES (confianza, luego valor)
   const recs = vigentes
     .filter((o) => o.ev > 0 && o.tier >= minConf && dayOf(o) === dayTab)
-    .sort((a, b) => Number(b.isNew) - Number(a.isNew) || b.tier - a.tier || b.ev - a.ev);
+    .sort((a, b) => b.tier - a.tier || b.ev - a.ev);
+  const topRecs = recs.slice(0, 3);       // los 3 mejores del día
+  const restRecs = recs.slice(3);
   const newCount = vigentes.filter((o) => o.isNew && o.ev > 0 && o.tier >= minConf).length;
   const noVal = vigentes.filter((o) => o.ev <= 0 && dayOf(o) === dayTab).sort((a, b) => b.ev - a.ev);
 
@@ -335,15 +338,30 @@ export default function Dashboard({ initialConfig, initialOpportunities, initial
               </div>
             )}
 
-            <div className="card-h" style={{ fontSize: 11, marginBottom: 13 }}><Activity size={13} /> Recomendaciones · {dayLabel[dayTab]} — {recs.length}</div>
+            <div className="card-h" style={{ fontSize: 11, marginBottom: 13 }}><Activity size={13} /> Top 3 del día · {dayLabel[dayTab]}{recs.length > 0 ? ` — ${Math.min(3, recs.length)} de ${recs.length}` : ""}</div>
 
             {recs.length === 0 && <div className="empty">Sin recomendaciones para {dayLabel[dayTab].toLowerCase()} a este nivel de confianza. Cambiá de día, bajá el filtro, o esperá el próximo escaneo — no apostar es una jugada válida.</div>}
 
-            {recs.map((o) => (
+            {topRecs.map((o) => (
               <RecCard key={o.id} o={o} units={toUnits(o.stake)} inParlay={parlayIds.includes(o.id)}
                 registered={!!registered[o.id]} blocked={stopped} onAdd={() => addBet(o)} onParlay={() => toggleParlay(o.id)}
                 playdoit={playdoitOdds[o.id] ?? ""} onPlaydoit={(v) => setPlaydoit(o.id, v)} />
             ))}
+
+            {restRecs.length > 0 && (
+              <>
+                <div className="novalue-head" tabIndex={0} role="button" onClick={() => setShowAllRecs((v) => !v)}
+                  onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setShowAllRecs((v) => !v)}>
+                  <ChevronDown size={14} className="chev" style={{ transform: showAllRecs ? "rotate(180deg)" : "none" }} />
+                  Ver las demás con valor ({restRecs.length})
+                </div>
+                {showAllRecs && restRecs.map((o) => (
+                  <RecCard key={o.id} o={o} units={toUnits(o.stake)} inParlay={parlayIds.includes(o.id)}
+                    registered={!!registered[o.id]} blocked={stopped} onAdd={() => addBet(o)} onParlay={() => toggleParlay(o.id)}
+                    playdoit={playdoitOdds[o.id] ?? ""} onPlaydoit={(v) => setPlaydoit(o.id, v)} />
+                ))}
+              </>
+            )}
 
             {/* AUTO PARLAYS — del día seleccionado */}
             <AutoParlays
