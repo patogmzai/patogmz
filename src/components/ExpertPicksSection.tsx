@@ -6,6 +6,7 @@ import { fmtDate } from "@/lib/format";
 import { LEAGUE_COLOR } from "@/lib/ui";
 import { CAPPERS } from "@/lib/cappers";
 import TweetEmbed from "./TweetEmbed";
+import TwitterTimeline from "./TwitterTimeline";
 import type { ExpertPick, ExpertPickResult } from "@/lib/types";
 
 export type ExpertPickInput = Omit<ExpertPick, "id" | "captured_at">;
@@ -36,7 +37,8 @@ const empty = {
 
 export default function ExpertPicksSection({ picks, onAdd, onSettle, onDelete }: Props) {
   const [f, setF] = useState({ ...empty });
-  const [showCappers, setShowCappers] = useState(false);
+  const [showCappers, setShowCappers] = useState(true);
+  const [openFeed, setOpenFeed] = useState<string | null>(null);
 
   const settled = picks.filter((p) => p.result === "win" || p.result === "loss");
   const wins = settled.filter((p) => p.result === "win").length;
@@ -82,16 +84,29 @@ export default function ExpertPicksSection({ picks, onAdd, onSettle, onDelete }:
           <Users size={13} /> {showCappers ? "Ocultar" : "Ver"} cappers que publican picks ({CAPPERS.length})
         </div>
         {showCappers && (
-          <div className="cappers-list">
-            {CAPPERS.map((c) => (
-              <a key={c.handle} href={c.url} target="_blank" rel="noopener noreferrer" className="capper-card">
-                <div className="capper-name">{c.name} <span className="capper-handle">{c.handle}</span></div>
-                <div className="capper-meta">{c.platform} · {c.sport}</div>
-                <div className="capper-note">{c.note}</div>
-              </a>
-            ))}
+          <div className="cappers-feeds">
+            {CAPPERS.filter((c) => c.platform === "X").map((c) => {
+              const isOpen = openFeed === c.handle;
+              return (
+                <div key={c.handle} className="capper-feed-card">
+                  <div className="capper-feed-header" onClick={() => setOpenFeed(isOpen ? null : c.handle)}>
+                    <div>
+                      <span className="capper-name">{c.name}</span>
+                      <span className="capper-handle">{c.handle}</span>
+                      <div className="capper-meta">{c.sport} · {c.note}</div>
+                    </div>
+                    <span className="capper-toggle-btn">{isOpen ? "cerrar" : "ver posts"}</span>
+                  </div>
+                  {isOpen && (
+                    <div className="capper-feed-body">
+                      <TwitterTimeline handle={c.handle} height={450} />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
             <div style={{ fontSize: 10, color: "var(--faint)", marginTop: 6 }}>
-              Checa sus perfiles, y cuando publiquen un pick, copia la URL del post y pégala abajo.
+              Los feeds son en vivo. Si ves un pick que te interese, copia la URL del tweet y regístralo abajo para llevar su récord.
             </div>
           </div>
         )}

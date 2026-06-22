@@ -202,18 +202,20 @@ input[type=range]{width:100%;accent-color:var(--gold);height:4px;cursor:pointer;
 .expert-rec{display:flex;gap:20px;flex-wrap:wrap;align-items:center;margin-bottom:14px;padding:11px 14px;border-radius:11px;
   background:var(--surface-2);border:1px solid var(--line-soft);font-size:12px;color:var(--dim);}
 .expert-rec .n{font-family:'IBM Plex Mono';font-weight:600;color:var(--text);}
-/* cappers directory */
+/* cappers directory + feeds */
 .cappers-toggle{display:flex;align-items:center;gap:7px;font-size:12px;font-family:'IBM Plex Mono';color:var(--gold);
   cursor:pointer;margin-bottom:12px;user-select:none;}
 .cappers-toggle:hover{color:var(--text);}
-.cappers-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:9px;margin-bottom:14px;}
-.capper-card{display:block;background:var(--surface-2);border:1px solid var(--line-soft);border-radius:10px;padding:10px 12px;
-  text-decoration:none;color:var(--text);transition:.14s;}
-.capper-card:hover{border-color:var(--gold-line);background:var(--surface-3);}
+.cappers-feeds{display:flex;flex-direction:column;gap:9px;margin-bottom:14px;}
+.capper-feed-card{background:var(--surface-2);border:1px solid var(--line-soft);border-radius:10px;overflow:hidden;}
+.capper-feed-header{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;cursor:pointer;transition:.14s;}
+.capper-feed-header:hover{background:var(--surface-3);}
 .capper-name{font-size:13px;font-weight:600;}
-.capper-handle{font-family:'IBM Plex Mono';font-size:11px;color:var(--blue);margin-left:4px;}
-.capper-meta{font-size:10px;font-family:'IBM Plex Mono';color:var(--faint);margin-top:3px;}
-.capper-note{font-size:11px;color:var(--dim);margin-top:4px;line-height:1.4;}
+.capper-handle{font-family:'IBM Plex Mono';font-size:11px;color:var(--blue);margin-left:6px;}
+.capper-meta{font-size:10px;font-family:'IBM Plex Mono';color:var(--faint);margin-top:2px;}
+.capper-toggle-btn{font-size:11px;font-family:'IBM Plex Mono';color:var(--gold);white-space:nowrap;padding:4px 10px;
+  border:1px solid var(--gold-line);border-radius:6px;background:var(--gold-soft);}
+.capper-feed-body{border-top:1px solid var(--line-soft);padding:8px 12px 12px;}
 
 .epicks{display:flex;flex-direction:column;gap:11px;}
 .epick{border:1px solid var(--line);border-radius:13px;background:var(--surface);padding:14px 16px;}
