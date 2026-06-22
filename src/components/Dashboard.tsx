@@ -21,12 +21,14 @@ interface Props {
   initialOpportunities: Opportunity[];
   initialBets: Bet[];
   demo: boolean;
+  dbError?: boolean;
   gated: boolean;
 }
 
 const uid = (p: string) => p + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+const isUuid = (id: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
 
-export default function Dashboard({ initialConfig, initialOpportunities, initialBets, demo, gated }: Props) {
+export default function Dashboard({ initialConfig, initialOpportunities, initialBets, demo, dbError, gated }: Props) {
   const [startBank, setStartBank] = useState(initialConfig.start_bank);
   const [kellyFrac, setKellyFrac] = useState(initialConfig.kelly_frac);
   const [unitPct, setUnitPct] = useState(initialConfig.unit_pct);
@@ -276,6 +278,15 @@ export default function Dashboard({ initialConfig, initialOpportunities, initial
 
           {/* MAIN */}
           <main>
+            {dbError && (
+              <div className="stop-banner" style={{ marginBottom: 16 }}>
+                <Info size={18} />
+                <div>
+                  <div className="t">Sin conexión a la base de datos</div>
+                  <div className="s">No pude leer tus datos reales — estás viendo <b>datos de demostración</b>. Revisa las llaves de Supabase o vuelve a intentar con <b>Actualizar</b>. Lo que registres ahora <b>no se guardará</b>.</div>
+                </div>
+              </div>
+            )}
             <div className="filterbar">
               <div className="chips">{SPORTS.map((s) => (
                 <button key={s.id} className="chip" data-on={sports[s.id] ? 1 : 0} onClick={() => setSports((p) => ({ ...p, [s.id]: !p[s.id] }))}>{s.label}</button>))}</div>
@@ -436,6 +447,7 @@ export default function Dashboard({ initialConfig, initialOpportunities, initial
                     {log.map((b) => {
                       const p = betPL(b); const cls = b.result === "win" ? "win" : b.result === "loss" ? "loss" : "flat";
                       const lc = (b.league && LEAGUE_COLOR[b.league]) || "var(--dim)";
+                      const syncing = !demo && !isUuid(b.id); // aún no confirmada por la DB
                       return (
                         <tr key={b.id}>
                           <td className="mono" style={{ color: "var(--dim)", whiteSpace: "nowrap" }}>{fmtDate(b.placed_at)}</td>
@@ -446,18 +458,22 @@ export default function Dashboard({ initialConfig, initialOpportunities, initial
                           <td className="mono">{b.odds.toFixed(2)}</td>
                           <td className="mono">{fmt(b.stake)}</td>
                           <td>{b.result === "pending" ? (
+                            syncing ? (
+                              <span className="mono" style={{ fontSize: 11, color: "var(--faint)" }}>guardando…</span>
+                            ) : (
                             <div className="settle">
                               <button className="sbtn w" onClick={() => settle(b.id, "win")}>Ganó</button>
                               <button className="sbtn l" onClick={() => settle(b.id, "loss")}>Perdió</button>
                               <button className="sbtn" onClick={() => settle(b.id, "push")}>Push</button>
                             </div>
+                            )
                           ) : (
                             <span className={"res " + (b.result === "push" ? "push" : b.result)}>
                               {b.result === "win" && <CircleCheck size={12} />}{b.result === "loss" && <CircleX size={12} />}
                               {b.result === "win" ? "Ganada" : b.result === "loss" ? "Perdida" : "Push"}
                             </span>)}</td>
                           <td className={"mono profit " + cls}>{b.result === "pending" ? "—" : (p >= 0 ? "+" : "") + fmt(p)}</td>
-                          <td><span style={{ cursor: "pointer", color: "var(--faint)", display: "flex" }} onClick={() => delBet(b.id)}><Trash2 size={13} /></span></td>
+                          <td>{!syncing && <span style={{ cursor: "pointer", color: "var(--faint)", display: "flex" }} onClick={() => delBet(b.id)}><Trash2 size={13} /></span>}</td>
                         </tr>
                       );
                     })}

@@ -11,6 +11,7 @@ export default async function Home() {
   let opportunities: Opportunity[] = mockOpportunities;
   let bets: Bet[] = mockBets;
   let demo = true;
+  let dbError = false;
 
   if (hasSupabaseEnv) {
     try {
@@ -21,7 +22,9 @@ export default async function Home() {
       ]);
       demo = false;
     } catch (e) {
+      // Hay llaves configuradas pero la DB falló → es un ERROR, no demo intencional.
       console.error("Supabase no disponible, usando datos demo:", e);
+      dbError = true;
     }
   }
 
@@ -31,6 +34,7 @@ export default async function Home() {
       initialOpportunities={opportunities}
       initialBets={bets}
       demo={demo}
+      dbError={dbError}
       gated={Boolean(process.env.APP_PASSWORD)}
     />
   );

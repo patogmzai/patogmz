@@ -54,7 +54,7 @@ export default function RecCard({ o, units, muted, inParlay, registered, blocked
       </div>
       <div className="rec-stats">
         <div className="rs">prob. de acierto <span className="n">{(o.fair_prob * 100).toFixed(0)}%</span></div>
-        <div className="rs">valor <span className="n" style={{ color: o.effEv > 0 ? "var(--pos)" : "var(--neg)" }}>{o.effEv >= 0 ? "+" : ""}{(o.effEv * 100).toFixed(1)}%</span></div>
+        <div className="rs">{hasPD ? "valor (Playdoit)" : "valor potencial"} <span className="n" style={{ color: o.effEv > 0 ? "var(--pos)" : "var(--neg)" }}>{o.effEv >= 0 ? "+" : ""}{(o.effEv * 100).toFixed(1)}%</span></div>
         <div className="rs">nivel <span className="n" style={{ color: tc }}>{TIER_WORD[o.tier]}</span></div>
       </div>
       {!muted && (
