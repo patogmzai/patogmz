@@ -153,6 +153,27 @@ input[type=range]{width:100%;accent-color:var(--gold);height:4px;cursor:pointer;
 .novalue-head:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:4px;}
 .novalue-head .chev{transition:transform .2s;}
 
+/* auto parlays */
+.auto-parlays{margin-bottom:18px;}
+.aparlay{border:1px solid var(--gold-line);background:linear-gradient(180deg,var(--gold-soft),transparent);border-radius:14px;padding:16px;margin-bottom:12px;}
+.aparlay-badge{font-family:'IBM Plex Mono';font-size:11px;font-weight:600;color:var(--gold);background:var(--surface);
+  border:1px solid var(--gold-line);border-radius:7px;display:inline-block;padding:3px 10px;margin-bottom:10px;}
+.aparlay-legs{display:flex;flex-direction:column;gap:7px;}
+.aparlay-leg{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--surface);border:1px solid var(--line);
+  border-radius:9px;padding:9px 12px;}
+.aparlay-leg-left{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0;}
+.aparlay-leg-pick{font-size:12.5px;color:var(--dim);} .aparlay-leg-pick b{color:var(--text);}
+.aparlay-leg-time{font-size:10px;font-family:'IBM Plex Mono';color:var(--faint);white-space:nowrap;}
+.aparlay-leg-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.aparlay-leg-right .od{font-family:'IBM Plex Mono';font-weight:600;font-size:13px;}
+.aparlay-footer{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px;padding-top:13px;border-top:1px solid var(--gold-line);}
+@media(max-width:560px){.aparlay-footer{grid-template-columns:1fr 1fr;}}
+.aparlay-stat .l{font-size:9.5px;font-family:'IBM Plex Mono';letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-bottom:3px;}
+.aparlay-stat .v{font-family:'IBM Plex Mono';font-weight:700;font-size:16px;}
+.aparlay-stat .v.big{font-family:'Space Grotesk';font-size:18px;}
+.aparlay-actions{margin-top:12px;}
+.aparlay-warn{font-size:10px;color:var(--faint);margin-top:8px;display:flex;gap:5px;align-items:center;}
+
 /* parlay panel */
 .parlay{border:1px solid var(--gold-line);background:linear-gradient(180deg,var(--gold-soft),transparent);border-radius:14px;padding:16px;margin-bottom:18px;}
 .parlay-legs{display:flex;flex-direction:column;gap:8px;margin:12px 0;}

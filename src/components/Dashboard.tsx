@@ -12,7 +12,7 @@ import type {
   Config, Opportunity, Bet, BetResult, ComputedOpportunity,
 } from "@/lib/types";
 import RecCard from "./RecCard";
-// ExpertPicksSection — en stand-by, descartada del dashboard por ahora
+import AutoParlays from "./AutoParlays";
 
 interface Props {
   initialConfig: Config;
@@ -274,6 +274,23 @@ export default function Dashboard({ initialConfig, initialOpportunities, initial
                 registered={!!registered[o.id]} onAdd={() => addBet(o)} onParlay={() => toggleParlay(o.id)}
                 playdoit={playdoitOdds[o.id] ?? ""} onPlaydoit={(v) => setPlaydoit(o.id, v)} />
             ))}
+
+            {/* AUTO PARLAYS */}
+            <AutoParlays
+              opportunities={computed}
+              currentBank={currentBank}
+              kellyFrac={kellyFrac}
+              unitPct={unitPct}
+              onRegister={async (pick, odds, stake, fairProb) => {
+                const tempId = uid("ap");
+                const now = new Date().toISOString();
+                const payload = { league: null, pick, odds, stake, kind: "parlay" as const, fair_prob: fairProb, opportunity_id: null };
+                setLog((l) => [{ id: tempId, placed_at: now, ...payload, result: "pending", created_at: now }, ...l]);
+                if (demo) return;
+                try { const saved = await api.addBet(payload); setLog((l) => l.map((b) => (b.id === tempId ? saved : b))); }
+                catch (e) { setLog((l) => l.filter((b) => b.id !== tempId)); alert("No se pudo guardar. " + e); }
+              }}
+            />
 
             {/* PARLAY BUILDER */}
             {pLegs.length > 0 && (
