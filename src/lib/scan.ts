@@ -4,7 +4,7 @@
 import { devig, evPct, confTier } from "./betting";
 import { LEAGUES, type LeagueConfig } from "./leagues";
 import { fetchLeagueOdds, fetchActiveSports, type OddsEvent, type Outcome } from "./odds";
-import { replaceOpportunities, type NewOpportunity } from "./db";
+import { syncOpportunities, type NewOpportunity } from "./db";
 
 const SHARP_KEY = "pinnacle";
 
@@ -125,7 +125,7 @@ export async function runScan(): Promise<ScanResult> {
   );
 
   const all = results.flatMap((r) => r.opps);
-  await replaceOpportunities(all);
+  await syncOpportunities(all);
 
   const remainings = results
     .map((r) => r.meta.remaining)

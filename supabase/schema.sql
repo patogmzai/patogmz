@@ -40,11 +40,15 @@ create table if not exists public.opportunities (
   ev          numeric(8,5)  not null,                       -- EV decimal: 0.04 = +4%
   tier        smallint      not null check (tier between 1 and 5),
   commence_time timestamptz,                                   -- hora del partido (de la API de momios)
-  scanned_at  timestamptz   not null default now()
+  status      text          not null default 'vigente' check (status in ('vigente','expirada','liquidada')),
+  first_seen_at timestamptz  not null default now(),            -- primera vez detectada (slate estable)
+  dedup_key   text,                                             -- clave estable: league|market|match|pick
+  scanned_at  timestamptz   not null default now()              -- última vez vista
 );
 
+create unique index if not exists opportunities_dedup_idx on public.opportunities (dedup_key);
 create index if not exists opportunities_rank_idx    on public.opportunities (tier desc, ev desc);
-create index if not exists opportunities_scanned_idx  on public.opportunities (scanned_at desc);
+create index if not exists opportunities_status_idx  on public.opportunities (status);
 create index if not exists opportunities_sport_idx    on public.opportunities (sport);
 
 -- ------------------------------------------------------------

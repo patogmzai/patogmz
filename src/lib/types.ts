@@ -16,6 +16,8 @@ export type ConfigPatchInput = Partial<
   Pick<Config, "start_bank" | "kelly_frac" | "unit_pct" | "stop_loss_pct">
 >;
 
+export type OpportunityStatus = "vigente" | "expirada" | "liquidada";
+
 export interface Opportunity {
   id: string;
   league: string;
@@ -29,7 +31,10 @@ export interface Opportunity {
   ev: number;
   tier: number;
   commence_time: string | null;
-  scanned_at: string;
+  status: OpportunityStatus;   // vigente | expirada (valor se fue) | liquidada (juego pasó)
+  first_seen_at: string;       // cuándo apareció por primera vez (slate estable)
+  dedup_key: string | null;    // clave estable: league|market|match|pick
+  scanned_at: string;          // última vez vista
 }
 
 /**
@@ -37,6 +42,7 @@ export interface Opportunity {
  * ev/tier = consenso (mejor línea API), usados para rankear.
  * effOdds = precio efectivo (Playdoit si lo confirmaste, si no la línea API);
  * effEv y stake se recalculan contra ese precio. fair_prob nunca cambia.
+ * isNew = apareció en el escaneo más reciente.
  */
 export interface ComputedOpportunity extends Opportunity {
   playdoit: number | null;
@@ -44,6 +50,7 @@ export interface ComputedOpportunity extends Opportunity {
   effEv: number;
   stake: number;
   cap: number;
+  isNew: boolean;
 }
 
 export interface Bet {

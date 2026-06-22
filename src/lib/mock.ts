@@ -34,12 +34,17 @@ const rawOpps: Array<
 
 export const mockOpportunities: Opportunity[] = rawOpps.map((r, i) => {
   const ev = evPct(r.fair_prob, r.odds);
+  // Reparte los juegos demo entre hoy y mañana para mostrar las pestañas.
+  const hoursAhead = (i + 1) * 4;
   return {
     id: `op-${i + 1}`,
     sharp_odds: null,
     ev,
     tier: confTier(ev, r.fair_prob),
-    commence_time: new Date(Date.now() + (i + 1) * 3600 * 1000).toISOString(),
+    commence_time: new Date(Date.now() + hoursAhead * 3600 * 1000).toISOString(),
+    status: "vigente" as const,
+    first_seen_at: i < 3 ? nowISO() : new Date(Date.now() - 26 * 3600 * 1000).toISOString(),
+    dedup_key: `${r.league}|${r.market}|${r.match}|${r.pick}`,
     scanned_at: nowISO(),
     ...r,
   };

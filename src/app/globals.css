@@ -95,6 +95,21 @@ input[type=range]{width:100%;accent-color:var(--gold);height:4px;cursor:pointer;
 .method code{font-family:'IBM Plex Mono';background:var(--surface-3);padding:1px 6px;border-radius:5px;font-size:11px;color:var(--gold);}
 .method .chev{margin-left:auto;transition:transform .2s;}
 
+/* day tabs (Hoy / Mañana / Más adelante) */
+.day-tabs{display:flex;gap:6px;margin-bottom:14px;}
+.day-tab{flex:1;background:var(--surface-2);border:1px solid var(--line);color:var(--dim);border-radius:10px;
+  padding:9px 12px;font-size:13px;font-family:'Inter';font-weight:600;cursor:pointer;transition:.13s;
+  display:flex;align-items:center;justify-content:center;gap:7px;}
+.day-tab:hover{color:var(--text);}
+.day-tab[data-on="1"]{background:var(--gold-soft);border-color:var(--gold-line);color:var(--gold);}
+.day-tab:focus-visible{outline:2px solid var(--gold);outline-offset:1px;}
+.day-count{font-family:'IBM Plex Mono';font-size:11px;background:var(--surface);border:1px solid var(--line);
+  border-radius:20px;padding:1px 7px;min-width:22px;text-align:center;}
+.day-tab[data-on="1"] .day-count{background:var(--surface);border-color:var(--gold-line);}
+.new-strip{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--pos);background:var(--pos-soft);
+  border:1px solid var(--pos-line);border-radius:10px;padding:9px 13px;margin-bottom:13px;}
+.new-strip .new-dot{width:7px;height:7px;border-radius:50%;background:var(--pos);box-shadow:0 0 0 3px var(--pos-soft);flex-shrink:0;}
+
 /* recommendation card */
 .rec{border:1px solid var(--line);border-radius:13px;background:var(--surface);padding:15px 16px;margin-bottom:11px;
   position:relative;overflow:hidden;}

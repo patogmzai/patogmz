@@ -40,6 +40,8 @@ export default function Dashboard({ initialConfig, initialOpportunities, initial
   const [playdoitOdds, setPlaydoitOdds] = useState<Record<string, string>>({});
   const [showMethod, setShowMethod] = useState(false);
   const [showNoValue, setShowNoValue] = useState(false);
+  const [showExpired, setShowExpired] = useState(false);
+  const [dayTab, setDayTab] = useState<"hoy" | "manana" | "futuro">("hoy");
   const [mForm, setMForm] = useState({ pick: "", odds: "", stake: "" });
 
   // Freshness real: el escaneo más reciente de las oportunidades cargadas.
@@ -90,7 +92,8 @@ export default function Dashboard({ initialConfig, initialOpportunities, initial
         const effEv = evPct(o.fair_prob, effOdds);
         const cap = currentBank * (unitPct / 100);
         const stake = kellyStake(o.fair_prob, effOdds, currentBank, kellyFrac, unitPct);
-        return { ...o, ev, tier, playdoit, effOdds, effEv, stake, cap };
+        const isNew = Date.now() - new Date(o.first_seen_at).getTime() < 24 * 3600 * 1000;
+        return { ...o, ev, tier, playdoit, effOdds, effEv, stake, cap, isNew };
       }),
     [opportunities, currentBank, kellyFrac, unitPct, playdoitOdds]
   );
@@ -98,9 +101,32 @@ export default function Dashboard({ initialConfig, initialOpportunities, initial
   const setPlaydoit = (id: string, val: string) =>
     setPlaydoitOdds((p) => ({ ...p, [id]: val }));
 
-  const visible = computed.filter((o) => sports[o.sport]);
-  const recs = visible.filter((o) => o.ev > 0 && o.tier >= minConf).sort((a, b) => b.tier - a.tier || b.ev - a.ev);
-  const noVal = visible.filter((o) => o.ev <= 0).sort((a, b) => b.ev - a.ev);
+  // ---- slate por día (Hoy / Mañana / Más adelante) ----
+  const dayOf = (o: ComputedOpportunity): "hoy" | "manana" | "futuro" | "pasado" => {
+    if (!o.commence_time) return "futuro";
+    const d = new Date(o.commence_time);
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const days = Math.floor((d.getTime() - startOfToday.getTime()) / (24 * 3600 * 1000));
+    if (d.getTime() < now.getTime()) return "pasado";
+    if (days <= 0) return "hoy";
+    if (days === 1) return "manana";
+    return "futuro";
+  };
+
+  const vigentes = computed.filter((o) => o.status === "vigente" && sports[o.sport]);
+  const expiradas = computed.filter((o) => o.status === "expirada" && sports[o.sport]);
+
+  const dayLabel: Record<string, string> = { hoy: "Hoy", manana: "Mañana", futuro: "Más adelante" };
+  const countByDay = (day: string) =>
+    vigentes.filter((o) => o.ev > 0 && o.tier >= minConf && dayOf(o) === day).length;
+
+  // recomendaciones del día seleccionado, con valor y sobre el filtro de confianza
+  const recs = vigentes
+    .filter((o) => o.ev > 0 && o.tier >= minConf && dayOf(o) === dayTab)
+    .sort((a, b) => Number(b.isNew) - Number(a.isNew) || b.tier - a.tier || b.ev - a.ev);
+  const newCount = vigentes.filter((o) => o.isNew && o.ev > 0 && o.tier >= minConf).length;
+  const noVal = vigentes.filter((o) => o.ev <= 0 && dayOf(o) === dayTab).sort((a, b) => b.ev - a.ev);
 
   // ---- parlay ----
   const pLegs = computed.filter((o) => parlayIds.includes(o.id));
@@ -271,9 +297,24 @@ export default function Dashboard({ initialConfig, initialOpportunities, initial
               </div>)}
             </div>
 
-            <div className="card-h" style={{ fontSize: 11, marginBottom: 13 }}><Activity size={13} /> Recomendaciones de hoy — {recs.length}</div>
+            {/* PESTAÑAS POR DÍA */}
+            <div className="day-tabs">
+              {(["hoy", "manana", "futuro"] as const).map((d) => (
+                <button key={d} className="day-tab" data-on={dayTab === d ? 1 : 0} onClick={() => setDayTab(d)}>
+                  {dayLabel[d]} <span className="day-count">{countByDay(d)}</span>
+                </button>
+              ))}
+            </div>
 
-            {recs.length === 0 && <div className="empty">Sin recomendaciones a este nivel de confianza. Bajá el filtro o esperá el próximo escaneo — no apostar es una jugada válida.</div>}
+            {newCount > 0 && (
+              <div className="new-strip">
+                <span className="new-dot" /> {newCount} oportunidad{newCount > 1 ? "es" : ""} nueva{newCount > 1 ? "s" : ""} desde el último escaneo — marcadas con <span className="pd-tag" style={{ marginLeft: 4 }}>NUEVA</span>
+              </div>
+            )}
+
+            <div className="card-h" style={{ fontSize: 11, marginBottom: 13 }}><Activity size={13} /> Recomendaciones · {dayLabel[dayTab]} — {recs.length}</div>
+
+            {recs.length === 0 && <div className="empty">Sin recomendaciones para {dayLabel[dayTab].toLowerCase()} a este nivel de confianza. Cambiá de día, bajá el filtro, o esperá el próximo escaneo — no apostar es una jugada válida.</div>}
 
             {recs.map((o) => (
               <RecCard key={o.id} o={o} units={toUnits(o.stake)} inParlay={parlayIds.includes(o.id)}
@@ -281,9 +322,9 @@ export default function Dashboard({ initialConfig, initialOpportunities, initial
                 playdoit={playdoitOdds[o.id] ?? ""} onPlaydoit={(v) => setPlaydoit(o.id, v)} />
             ))}
 
-            {/* AUTO PARLAYS */}
+            {/* AUTO PARLAYS — del día seleccionado */}
             <AutoParlays
-              opportunities={computed}
+              opportunities={vigentes.filter((o) => dayOf(o) === dayTab)}
               currentBank={currentBank}
               kellyFrac={kellyFrac}
               unitPct={unitPct}
@@ -337,6 +378,19 @@ export default function Dashboard({ initialConfig, initialOpportunities, initial
                   No recomendadas ({noVal.length}) — el momio no compensa
                 </div>
                 {showNoValue && noVal.map((o) => (
+                  <RecCard key={o.id} o={o} units={toUnits(o.stake)} muted inParlay={false} registered onAdd={() => {}} onParlay={() => {}} playdoit="" onPlaydoit={() => {}} />))}
+              </>
+            )}
+
+            {/* EXPIRADAS — el valor se fue; no se borran en silencio */}
+            {expiradas.length > 0 && (
+              <>
+                <div className="novalue-head" tabIndex={0} role="button" onClick={() => setShowExpired((v) => !v)}
+                  onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setShowExpired((v) => !v)}>
+                  <ChevronDown size={14} className="chev" style={{ transform: showExpired ? "rotate(180deg)" : "none" }} />
+                  Expiradas ({expiradas.length}) — el valor se fue desde que aparecieron
+                </div>
+                {showExpired && expiradas.map((o) => (
                   <RecCard key={o.id} o={o} units={toUnits(o.stake)} muted inParlay={false} registered onAdd={() => {}} onParlay={() => {}} playdoit="" onPlaydoit={() => {}} />))}
               </>
             )}

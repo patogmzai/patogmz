@@ -43,6 +43,7 @@ export default function RecCard({ o, units, muted, inParlay, registered, onAdd, 
       </div>
       <div className="matchup disp">
         {o.match}
+        {o.isNew && !muted && <span className="pd-tag" style={{ background: "var(--pos-soft)", borderColor: "var(--pos-line)", color: "var(--pos)" }}>NUEVA</span>}
         {o.commence_time && <span className="game-time"><Clock size={11} /> {fmtGameTime(o.commence_time)}</span>}
       </div>
       <div className="pickline">
