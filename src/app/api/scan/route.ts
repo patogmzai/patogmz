@@ -17,8 +17,9 @@ async function handle(req: Request) {
   }
   try {
     return NextResponse.json(await runScan());
-  } catch (e) {
-    return NextResponse.json({ error: String(e) }, { status: 500 });
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : JSON.stringify(e);
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
 

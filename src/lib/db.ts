@@ -40,10 +40,10 @@ export type NewOpportunity = Omit<Opportunity, "id" | "scanned_at">;
 export async function replaceOpportunities(rows: NewOpportunity[]): Promise<void> {
   const sb = getSupabaseAdmin();
   const { error: delErr } = await sb.from("opportunities").delete().not("id", "is", null);
-  if (delErr) throw delErr;
+  if (delErr) throw new Error(`delete opportunities: ${delErr.message}`);
   if (rows.length) {
     const { error: insErr } = await sb.from("opportunities").insert(rows);
-    if (insErr) throw insErr;
+    if (insErr) throw new Error(`insert opportunities: ${insErr.message}`);
   }
 }
 

@@ -116,8 +116,9 @@ export async function runScan(): Promise<ScanResult> {
           for (const m of league.markets) opps.push(...marketOpportunities(ev, league, m));
         }
         return { opps, meta: { league: league.label, events: events.length, opps: opps.length, remaining } };
-      } catch (e) {
-        return { opps: [] as NewOpportunity[], meta: { league: league.label, error: String(e) } };
+      } catch (e: unknown) {
+        const msg = e instanceof Error ? e.message : JSON.stringify(e);
+        return { opps: [] as NewOpportunity[], meta: { league: league.label, error: msg } };
       }
     })
   );
