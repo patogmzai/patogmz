@@ -21,8 +21,6 @@ export const LEAGUES: LeagueConfig[] = [
   { key: "soccer_uefa_champs_league", label: "CHAMPIONS", sport: "futbol", markets: SOCCER },
   { key: "soccer_spain_la_liga", label: "LA LIGA", sport: "futbol", markets: SOCCER },
   { key: "soccer_conmebol_copa_libertadores", label: "LIBERTADORES", sport: "futbol", markets: SOCCER },
-  { key: "soccer_conmebol_copa_sudamericana", label: "SUDAMERICANA", sport: "futbol", markets: SOCCER },
-  { key: "soccer_epl", label: "PREMIER", sport: "futbol", markets: SOCCER },
 
   // --- US ---
   { key: "americanfootball_nfl", label: "NFL", sport: "nfl", markets: US },
@@ -32,7 +30,6 @@ export const LEAGUES: LeagueConfig[] = [
 
   // --- Combate ---
   { key: "mma_mixed_martial_arts", label: "UFC", sport: "otros", markets: SOLO },
-  { key: "boxing_boxing", label: "BOXEO", sport: "otros", markets: SOLO },
 
   // --- Tenis (claves por torneo; el filtro de temporada activa el vigente) ---
   { key: "tennis_atp_wimbledon", label: "WIMBLEDON", sport: "otros", markets: SOLO },
