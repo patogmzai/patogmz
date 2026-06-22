@@ -9,23 +9,22 @@ import { fmt, fmtDate, betPL } from "@/lib/format";
 import { LEAGUE_COLOR, SPORTS } from "@/lib/ui";
 import { api } from "@/lib/api";
 import type {
-  Config, Opportunity, Bet, ExpertPick, ExpertPickResult, BetResult, ComputedOpportunity,
+  Config, Opportunity, Bet, BetResult, ComputedOpportunity,
 } from "@/lib/types";
 import RecCard from "./RecCard";
-import ExpertPicksSection, { type ExpertPickInput } from "./ExpertPicksSection";
+// ExpertPicksSection — en stand-by, descartada del dashboard por ahora
 
 interface Props {
   initialConfig: Config;
   initialOpportunities: Opportunity[];
   initialBets: Bet[];
-  initialExpertPicks: ExpertPick[];
   demo: boolean;
   gated: boolean;
 }
 
 const uid = (p: string) => p + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 
-export default function Dashboard({ initialConfig, initialOpportunities, initialBets, initialExpertPicks, demo, gated }: Props) {
+export default function Dashboard({ initialConfig, initialOpportunities, initialBets, demo, gated }: Props) {
   const [startBank, setStartBank] = useState(initialConfig.start_bank);
   const [kellyFrac, setKellyFrac] = useState(initialConfig.kelly_frac);
   const [unitPct, setUnitPct] = useState(initialConfig.unit_pct);
@@ -33,8 +32,6 @@ export default function Dashboard({ initialConfig, initialOpportunities, initial
 
   const [opportunities] = useState<Opportunity[]>(initialOpportunities);
   const [log, setLog] = useState<Bet[]>(initialBets);
-  const [expertPicks, setExpertPicks] = useState<ExpertPick[]>(initialExpertPicks);
-
   const [minConf, setMinConf] = useState(2);
   const [sports, setSports] = useState<Record<string, boolean>>({ futbol: true, nfl: true, nba: true, otros: true });
   const [registered, setRegistered] = useState<Record<string, boolean>>({});
@@ -181,35 +178,6 @@ export default function Dashboard({ initialConfig, initialOpportunities, initial
     if (demo) return;
     try { await api.deleteBet(id); }
     catch (e) { setLog(prev); alert("No se pudo borrar la apuesta. " + e); }
-  };
-
-  // ---- expert picks ----
-  const addExpertPick = async (p: ExpertPickInput) => {
-    const tempId = uid("ep");
-    const now = new Date().toISOString();
-    setExpertPicks((xs) => [{ ...p, id: tempId, captured_at: now }, ...xs]);
-    if (demo) return;
-    try {
-      const saved = await api.addExpertPick(p);
-      setExpertPicks((xs) => xs.map((x) => (x.id === tempId ? saved : x)));
-    } catch (e) {
-      setExpertPicks((xs) => xs.filter((x) => x.id !== tempId));
-      alert("No se pudo guardar el pick. " + e);
-    }
-  };
-  const settleExpertPick = async (id: string, result: ExpertPickResult) => {
-    const prev = expertPicks;
-    setExpertPicks((xs) => xs.map((p) => (p.id === id ? { ...p, result } : p)));
-    if (demo) return;
-    try { await api.settleExpertPick(id, result); }
-    catch (e) { setExpertPicks(prev); alert("No se pudo actualizar el pick. " + e); }
-  };
-  const delExpertPick = async (id: string) => {
-    const prev = expertPicks;
-    setExpertPicks((xs) => xs.filter((p) => p.id !== id));
-    if (demo) return;
-    try { await api.deleteExpertPick(id); }
-    catch (e) { setExpertPicks(prev); alert("No se pudo borrar el pick. " + e); }
   };
 
   const mmss = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
@@ -365,9 +333,6 @@ export default function Dashboard({ initialConfig, initialOpportunities, initial
                 </div>
               </div>
             </div>
-
-            {/* PICKS DE APOSTADORES FAMOSOS */}
-            <ExpertPicksSection picks={expertPicks} onAdd={addExpertPick} onSettle={settleExpertPick} onDelete={delExpertPick} />
 
             {/* BITÁCORA */}
             <div className="card" style={{ marginTop: 14 }}>
