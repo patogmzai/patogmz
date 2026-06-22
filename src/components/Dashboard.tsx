@@ -1,11 +1,12 @@
 "use client";
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo, useRef, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import {
   Activity, RefreshCw, TrendingUp, ShieldCheck, Wallet, Plus, ChevronDown,
   Info, CircleCheck, CircleX, Clock, Layers, Trash2, PencilLine,
 } from "lucide-react";
 import { evPct, confTier, kellyStake, parlay, decToAmerican } from "@/lib/betting";
-import { fmt, fmtDate, betPL } from "@/lib/format";
+import { fmt, fmtDate, fmtAgo, betPL } from "@/lib/format";
 import { LEAGUE_COLOR, SPORTS } from "@/lib/ui";
 import { api } from "@/lib/api";
 import type {
@@ -39,14 +40,15 @@ export default function Dashboard({ initialConfig, initialOpportunities, initial
   const [playdoitOdds, setPlaydoitOdds] = useState<Record<string, string>>({});
   const [showMethod, setShowMethod] = useState(false);
   const [showNoValue, setShowNoValue] = useState(false);
-  const [secs, setSecs] = useState(30 * 60);
   const [mForm, setMForm] = useState({ pick: "", odds: "", stake: "" });
 
-  // countdown del próximo escaneo (visual)
-  useEffect(() => {
-    const t = setInterval(() => setSecs((s) => (s <= 1 ? 30 * 60 : s - 1)), 1000);
-    return () => clearInterval(t);
-  }, []);
+  // Freshness real: el escaneo más reciente de las oportunidades cargadas.
+  const router = useRouter();
+  const [isRefreshing, startRefresh] = useTransition();
+  const lastScan = useMemo(
+    () => opportunities.reduce<string | null>((m, o) => (!m || o.scanned_at > m ? o.scanned_at : m), null),
+    [opportunities]
+  );
 
   // guardar config (debounced) cuando hay DB
   const firstCfg = useRef(true);
@@ -180,7 +182,6 @@ export default function Dashboard({ initialConfig, initialOpportunities, initial
     catch (e) { setLog(prev); alert("No se pudo borrar la apuesta. " + e); }
   };
 
-  const mmss = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
   const logout = async () => {
     await fetch("/api/logout", { method: "POST" });
     window.location.href = "/login";
@@ -197,9 +198,11 @@ export default function Dashboard({ initialConfig, initialOpportunities, initial
             </div>
           </div>
           <div className="sv-status">
-            <div className="pill"><span className="dot" />escaneo <b>activo</b></div>
-            <div className="pill"><Clock size={13} />próximo <b className="mono">{mmss(secs)}</b></div>
-            <button className="refresh-btn" onClick={() => setSecs(30 * 60)}><RefreshCw size={13} /> Escanear ahora</button>
+            <div className="pill"><span className="dot" />escaneo <b>diario</b></div>
+            <div className="pill"><Clock size={13} />escaneado <b className="mono">{demo ? "demo" : fmtAgo(lastScan)}</b></div>
+            <button className="refresh-btn" onClick={() => startRefresh(() => router.refresh())} disabled={isRefreshing}>
+              <RefreshCw size={13} className={isRefreshing ? "spin" : ""} /> {isRefreshing ? "Actualizando…" : "Actualizar"}
+            </button>
             {gated && <button className="logout-link" onClick={logout}>salir</button>}
           </div>
         </header>
@@ -253,7 +256,10 @@ export default function Dashboard({ initialConfig, initialOpportunities, initial
             </div>
 
             <div className="method">
-              <div style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: 8, color: "var(--text)", fontWeight: 600 }} onClick={() => setShowMethod((v) => !v)}>
+              <div role="button" tabIndex={0} aria-expanded={showMethod}
+                style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: 8, color: "var(--text)", fontWeight: 600 }}
+                onClick={() => setShowMethod((v) => !v)}
+                onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && (e.preventDefault(), setShowMethod((v) => !v))}>
                 <Info size={14} style={{ color: "var(--gold)" }} /> ¿Qué significa la confianza?
                 <ChevronDown size={14} className="chev" style={{ marginLeft: "auto", transform: showMethod ? "rotate(180deg)" : "none" }} />
               </div>
@@ -395,7 +401,7 @@ export default function Dashboard({ initialConfig, initialOpportunities, initial
 
             <div className="foot"><Info className="ic" size={16} />
               <p><b>Herramienta de decisión, no una garantía.</b> La confianza mide la calidad del valor, no que la apuesta entre;
-                aun los 5★ pierden por <b>varianza</b>. {demo ? <>Los momios y la prob. justa son simulados (en producción llegan por API).</> : <>Las oportunidades llegan del escaneo (paso 5).</>}
+                aun los 5★ pierden por <b>varianza</b>. {demo ? <>Los momios y la prob. justa son simulados (datos de demostración).</> : <>El valor se mide contra la línea sharp de Pinnacle; confirma el precio real en Playdoit antes de apostar.</>}
                 Recordá que Playdoit <b>limita las cuentas ganadoras</b>. El margen positivo solo aparece con volumen, disciplina y banca bien gestionada.</p>
             </div>
           </main>

@@ -33,6 +33,19 @@ export function fmtGameTime(iso: string | null): string {
   return `${date} ${time}`;
 }
 
+/** Tiempo relativo honesto: "hace un momento", "hace 12 min", "hace 3 h", "hace 2 d". */
+export function fmtAgo(iso: string | null): string {
+  if (!iso) return "—";
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const min = Math.floor(diffMs / 60000);
+  if (min < 1) return "hace un momento";
+  if (min < 60) return `hace ${min} min`;
+  const h = Math.floor(min / 60);
+  if (h < 24) return `hace ${h} h`;
+  const d = Math.floor(h / 24);
+  return `hace ${d} d`;
+}
+
 /** P&L de una apuesta liquidada (win → ganancia neta, loss → -stake, push/pending → 0). */
 export const betPL = (b: Bet) =>
   b.result === "win" ? b.stake * (b.odds - 1) : b.result === "loss" ? -b.stake : 0;
