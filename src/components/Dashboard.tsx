@@ -36,7 +36,7 @@ export default function Dashboard({ initialConfig, initialOpportunities, initial
 
   const [opportunities] = useState<Opportunity[]>(initialOpportunities);
   const [log, setLog] = useState<Bet[]>(initialBets);
-  const [minConf, setMinConf] = useState(2);
+  const [minConf, setMinConf] = useState(1);
   const [sports, setSports] = useState<Record<string, boolean>>({ futbol: true, nfl: true, nba: true, otros: true });
   const [registered, setRegistered] = useState<Record<string, boolean>>({});
   const [parlayIds, setParlayIds] = useState<string[]>([]);
