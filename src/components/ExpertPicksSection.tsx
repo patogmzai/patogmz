@@ -1,9 +1,11 @@
 "use client";
 import { useState } from "react";
-import { Star, Plus, Trash2, CircleCheck, CircleX, ExternalLink, ShieldCheck } from "lucide-react";
+import { Star, Plus, Trash2, CircleCheck, CircleX, ExternalLink, ShieldCheck, Users } from "lucide-react";
 import { decToAmerican } from "@/lib/betting";
 import { fmtDate } from "@/lib/format";
 import { LEAGUE_COLOR } from "@/lib/ui";
+import { CAPPERS } from "@/lib/cappers";
+import TweetEmbed from "./TweetEmbed";
 import type { ExpertPick, ExpertPickResult } from "@/lib/types";
 
 export type ExpertPickInput = Omit<ExpertPick, "id" | "captured_at">;
@@ -13,6 +15,10 @@ interface Props {
   onAdd: (p: ExpertPickInput) => void;
   onSettle: (id: string, result: ExpertPickResult) => void;
   onDelete: (id: string) => void;
+}
+
+function isTwitterUrl(url: string): boolean {
+  return /^https?:\/\/(twitter\.com|x\.com)\/\w+\/status\/\d+/i.test(url);
 }
 
 const todayStr = () => new Date().toISOString().slice(0, 10);
@@ -30,8 +36,8 @@ const empty = {
 
 export default function ExpertPicksSection({ picks, onAdd, onSettle, onDelete }: Props) {
   const [f, setF] = useState({ ...empty });
+  const [showCappers, setShowCappers] = useState(false);
 
-  // Récord real del conjunto de apostadores (solo picks liquidados).
   const settled = picks.filter((p) => p.result === "win" || p.result === "loss");
   const wins = settled.filter((p) => p.result === "win").length;
   const losses = settled.filter((p) => p.result === "loss").length;
@@ -60,7 +66,7 @@ export default function ExpertPicksSection({ picks, onAdd, onSettle, onDelete }:
       odds: od,
       stake_units: un,
       rationale: null,
-      verified: true, // lo registraste tú con su fuente
+      verified: true,
       result: "pending",
     });
     setF({ ...empty });
@@ -71,6 +77,25 @@ export default function ExpertPicksSection({ picks, onAdd, onSettle, onDelete }:
       <div className="card-pad">
         <div className="card-h"><Star size={13} /> Picks de apostadores famosos — solo verídicos, con fuente</div>
 
+        {/* CAPPERS LIST */}
+        <div className="cappers-toggle" onClick={() => setShowCappers((v) => !v)}>
+          <Users size={13} /> {showCappers ? "Ocultar" : "Ver"} cappers que publican picks ({CAPPERS.length})
+        </div>
+        {showCappers && (
+          <div className="cappers-list">
+            {CAPPERS.map((c) => (
+              <a key={c.handle} href={c.url} target="_blank" rel="noopener noreferrer" className="capper-card">
+                <div className="capper-name">{c.name} <span className="capper-handle">{c.handle}</span></div>
+                <div className="capper-meta">{c.platform} · {c.sport}</div>
+                <div className="capper-note">{c.note}</div>
+              </a>
+            ))}
+            <div style={{ fontSize: 10, color: "var(--faint)", marginTop: 6 }}>
+              Checa sus perfiles, y cuando publiquen un pick, copia la URL del post y pégala abajo.
+            </div>
+          </div>
+        )}
+
         <div className="expert-rec">
           <span>récord registrado <span className="n">{wins}–{losses}</span></span>
           <span>rendimiento {roiU === null ? <span className="n">—</span> : <span className="n" style={{ color: roiU >= 0 ? "var(--pos)" : "var(--neg)" }}>{roiU >= 0 ? "+" : ""}{roiU.toFixed(1)}%</span>} <span style={{ color: "var(--faint)" }}>(en unidades)</span></span>
@@ -78,11 +103,12 @@ export default function ExpertPicksSection({ picks, onAdd, onSettle, onDelete }:
         </div>
 
         {picks.length === 0 ? (
-          <div className="empty">Aún no hay picks. Registra abajo picks reales de apostadores, cada uno con su enlace de fuente verificable. Nada de rumores.</div>
+          <div className="empty">Aún no hay picks. Busca en los perfiles de arriba, y cuando publiquen un pick, pega la URL del tweet/post abajo. Se incrusta el post real.</div>
         ) : (
           <div className="epicks">
             {picks.map((p) => {
               const lc = (p.league && LEAGUE_COLOR[p.league]) || "var(--dim)";
+              const isTweet = isTwitterUrl(p.source_url);
               return (
                 <div className="epick" key={p.id}>
                   <div className="epick-top">
@@ -113,12 +139,13 @@ export default function ExpertPicksSection({ picks, onAdd, onSettle, onDelete }:
                     {p.match ? <span style={{ color: "var(--faint)" }}> — {p.match}</span> : null}
                     {p.stake_units ? <span style={{ color: "var(--faint)", fontFamily: "IBM Plex Mono", fontSize: 11 }}> · {p.stake_units}u</span> : null}
                   </div>
-                  {p.rationale && <div className="epick-rat">{p.rationale}</div>}
+                  {isTweet && <TweetEmbed url={p.source_url} />}
+                  {p.rationale && !isTweet && <div className="epick-rat">{p.rationale}</div>}
                   <div className="epick-meta">
                     <span>{fmtDate(p.published_at)}</span>
                     <span>·</span>
                     <span>{p.source}</span>
-                    {p.source_url && p.source_url !== "#" && (
+                    {p.source_url && p.source_url !== "#" && !isTweet && (
                       <a href={p.source_url} target="_blank" rel="noopener noreferrer"><ExternalLink size={11} style={{ verticalAlign: "-1px" }} /> fuente</a>
                     )}
                     <span className="x" style={{ marginLeft: "auto" }} onClick={() => onDelete(p.id)}><Trash2 size={13} /></span>
@@ -132,20 +159,20 @@ export default function ExpertPicksSection({ picks, onAdd, onSettle, onDelete }:
         <div style={{ borderTop: "1px solid var(--line-soft)", margin: "16px 0 14px" }} />
         <div className="card-h" style={{ marginBottom: 12 }}><Plus size={13} /> Registrar pick de un apostador</div>
         <div className="eform">
-          <div className="inp"><label>Apostador</label><input value={f.expert_name} placeholder="Ej. Billy Walters" onChange={(e) => setF({ ...f, expert_name: e.target.value })} /></div>
+          <div className="inp"><label>Apostador</label><input value={f.expert_name} placeholder="Ej. Warren Sharp" onChange={(e) => setF({ ...f, expert_name: e.target.value })} /></div>
           <div className="inp"><label>Liga</label><input value={f.league} placeholder="NFL" onChange={(e) => setF({ ...f, league: e.target.value })} /></div>
           <div className="inp"><label>Partido</label><input value={f.match} placeholder="Chiefs vs. Bills" onChange={(e) => setF({ ...f, match: e.target.value })} /></div>
           <div className="inp"><label>Publicado</label><input type="date" value={f.published} onChange={(e) => setF({ ...f, published: e.target.value })} /></div>
           <div className="inp wide"><label>Pick</label><input value={f.pick} placeholder="Bills +2.5" onChange={(e) => setF({ ...f, pick: e.target.value })} /></div>
           <div className="inp"><label>Momio (dec., opc.)</label><input value={f.odds} placeholder="1.95" inputMode="decimal" onChange={(e) => setF({ ...f, odds: e.target.value })} /></div>
           <div className="inp"><label>Unidades (opc.)</label><input value={f.stake_units} placeholder="2" inputMode="decimal" onChange={(e) => setF({ ...f, stake_units: e.target.value })} /></div>
-          <div className="inp"><label>Fuente</label><input value={f.source} placeholder="X / @handle, Action Network…" onChange={(e) => setF({ ...f, source: e.target.value })} /></div>
-          <div className="inp wide"><label>URL de la fuente (obligatoria)</label><input value={f.source_url} placeholder="https://…" inputMode="url" onChange={(e) => setF({ ...f, source_url: e.target.value })} /></div>
+          <div className="inp"><label>Fuente</label><input value={f.source} placeholder="X / @handle" onChange={(e) => setF({ ...f, source: e.target.value })} /></div>
+          <div className="inp wide"><label>URL del tweet / post (obligatoria — si es de X/Twitter, se incrusta el post real)</label><input value={f.source_url} placeholder="https://x.com/usuario/status/123..." inputMode="url" onChange={(e) => setF({ ...f, source_url: e.target.value })} /></div>
           <button className="btn go" style={{ alignSelf: "end" }} onClick={submit}><Plus size={14} /> Agregar pick</button>
         </div>
         <div style={{ fontSize: 11, color: "var(--faint)", marginTop: 10, display: "flex", gap: 7, alignItems: "flex-start" }}>
           <ShieldCheck size={13} style={{ flexShrink: 0, marginTop: 1, color: "var(--gold)" }} />
-          Solo picks que el apostador realmente publicó, con enlace a la fuente. Esta sección es informativa: no alimenta las recomendaciones (que se calculan solas).
+          Solo picks que el apostador realmente publicó. Si pegas una URL de X/Twitter, el tweet se muestra directo aquí. Esta sección es informativa: no alimenta las recomendaciones.
         </div>
       </div>
     </div>

@@ -202,6 +202,19 @@ input[type=range]{width:100%;accent-color:var(--gold);height:4px;cursor:pointer;
 .expert-rec{display:flex;gap:20px;flex-wrap:wrap;align-items:center;margin-bottom:14px;padding:11px 14px;border-radius:11px;
   background:var(--surface-2);border:1px solid var(--line-soft);font-size:12px;color:var(--dim);}
 .expert-rec .n{font-family:'IBM Plex Mono';font-weight:600;color:var(--text);}
+/* cappers directory */
+.cappers-toggle{display:flex;align-items:center;gap:7px;font-size:12px;font-family:'IBM Plex Mono';color:var(--gold);
+  cursor:pointer;margin-bottom:12px;user-select:none;}
+.cappers-toggle:hover{color:var(--text);}
+.cappers-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:9px;margin-bottom:14px;}
+.capper-card{display:block;background:var(--surface-2);border:1px solid var(--line-soft);border-radius:10px;padding:10px 12px;
+  text-decoration:none;color:var(--text);transition:.14s;}
+.capper-card:hover{border-color:var(--gold-line);background:var(--surface-3);}
+.capper-name{font-size:13px;font-weight:600;}
+.capper-handle{font-family:'IBM Plex Mono';font-size:11px;color:var(--blue);margin-left:4px;}
+.capper-meta{font-size:10px;font-family:'IBM Plex Mono';color:var(--faint);margin-top:3px;}
+.capper-note{font-size:11px;color:var(--dim);margin-top:4px;line-height:1.4;}
+
 .epicks{display:flex;flex-direction:column;gap:11px;}
 .epick{border:1px solid var(--line);border-radius:13px;background:var(--surface);padding:14px 16px;}
 .epick-top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
@@ -214,6 +227,8 @@ input[type=range]{width:100%;accent-color:var(--gold);height:4px;cursor:pointer;
 .epick .epick-pick .od{font-family:'IBM Plex Mono';color:var(--text);font-weight:600;}
 .epick .epick-rat{font-size:11.5px;color:var(--faint);line-height:1.55;margin-top:7px;}
 .epick .epick-meta{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:10.5px;color:var(--faint);font-family:'IBM Plex Mono';align-items:center;}
+.tweet-embed{margin-top:10px;max-width:550px;}
+.tweet-embed .twitter-tweet{margin:0!important;}
 .epick .epick-meta a{color:var(--blue);text-decoration:none;}
 .epick .epick-meta a:hover{text-decoration:underline;}
 .epick .epick-meta .x{cursor:pointer;display:flex;}
