@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { runScan } from "@/lib/scan";
+import { autoFetchExpertPicks } from "@/lib/fetch-picks";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60; // varias ligas en red; en Vercel Pro hasta 300s
@@ -16,7 +17,11 @@ async function handle(req: Request) {
     return NextResponse.json({ error: "no autorizado" }, { status: 401 });
   }
   try {
-    return NextResponse.json(await runScan());
+    const [scanResult, picksResult] = await Promise.all([
+      runScan(),
+      autoFetchExpertPicks().catch((e) => ({ found: 0, saved: 0, errors: [String(e)] })),
+    ]);
+    return NextResponse.json({ ...scanResult, expert_picks: picksResult });
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : JSON.stringify(e);
     return NextResponse.json({ error: msg }, { status: 500 });
