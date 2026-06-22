@@ -281,6 +281,16 @@ export default function Dashboard({ initialConfig, initialOpportunities, initial
                 <input type="range" min="1" max="5" step="1" value={minConf} onChange={(e) => setMinConf(Number(e.target.value))} /></div>
             </div>
 
+            {stopped && (
+              <div className="stop-banner">
+                <ShieldCheck size={18} />
+                <div>
+                  <div className="t">Stop-loss activado — pausa esta semana</div>
+                  <div className="s">Cruzaste tu límite ({stopLossPct}%, vas {weekPL >= 0 ? "+" : ""}{weekPL.toFixed(1)}%). El registro de recomendaciones y parlays está en pausa. <b>No persigas pérdidas</b> — se reactiva cuando tu semana se recupere.</div>
+                </div>
+              </div>
+            )}
+
             <div className="method">
               <div role="button" tabIndex={0} aria-expanded={showMethod}
                 style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: 8, color: "var(--text)", fontWeight: 600 }}
@@ -318,7 +328,7 @@ export default function Dashboard({ initialConfig, initialOpportunities, initial
 
             {recs.map((o) => (
               <RecCard key={o.id} o={o} units={toUnits(o.stake)} inParlay={parlayIds.includes(o.id)}
-                registered={!!registered[o.id]} onAdd={() => addBet(o)} onParlay={() => toggleParlay(o.id)}
+                registered={!!registered[o.id]} blocked={stopped} onAdd={() => addBet(o)} onParlay={() => toggleParlay(o.id)}
                 playdoit={playdoitOdds[o.id] ?? ""} onPlaydoit={(v) => setPlaydoit(o.id, v)} />
             ))}
 
@@ -328,6 +338,7 @@ export default function Dashboard({ initialConfig, initialOpportunities, initial
               currentBank={currentBank}
               kellyFrac={kellyFrac}
               unitPct={unitPct}
+              blocked={stopped}
               onRegister={async (pick, odds, stake, fairProb) => {
                 const tempId = uid("ap");
                 const now = new Date().toISOString();

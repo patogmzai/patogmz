@@ -10,13 +10,14 @@ interface Props {
   muted?: boolean;
   inParlay: boolean;
   registered: boolean;
+  blocked?: boolean; // stop-loss activado
   onAdd: () => void;
   onParlay: () => void;
   playdoit: string;
   onPlaydoit: (v: string) => void;
 }
 
-export default function RecCard({ o, units, muted, inParlay, registered, onAdd, onParlay, playdoit, onPlaydoit }: Props) {
+export default function RecCard({ o, units, muted, inParlay, registered, blocked, onAdd, onParlay, playdoit, onPlaydoit }: Props) {
   const tc = TIER_COLOR[o.tier];
   const lc = LEAGUE_COLOR[o.league] || "#888";
   const hasPD = o.playdoit != null;
@@ -83,9 +84,12 @@ export default function RecCard({ o, units, muted, inParlay, registered, onAdd, 
               <button className="btn par" data-on={inParlay ? 1 : 0} onClick={onParlay}>
                 <Layers size={14} /> {inParlay ? "En parlay" : "Parlay"}
               </button>
-              <button className={"btn go" + (registered ? " done" : "")} onClick={onAdd} disabled={registered}>
+              <button className={"btn go" + (registered ? " done" : "")} onClick={onAdd} disabled={registered || blocked}
+                title={blocked ? "Stop-loss activado — pausa" : undefined}>
                 {registered ? (
                   <><CircleCheck size={14} /> Registrada</>
+                ) : blocked ? (
+                  <>En pausa</>
                 ) : (
                   <><Plus size={14} /> Registrar</>
                 )}

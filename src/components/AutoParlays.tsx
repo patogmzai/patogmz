@@ -11,6 +11,7 @@ interface Props {
   currentBank: number;
   kellyFrac: number;
   unitPct: number;
+  blocked?: boolean; // stop-loss activado
   onRegister: (pick: string, odds: number, stake: number, fairProb: number) => void;
 }
 
@@ -66,7 +67,7 @@ function buildParlays(opps: ComputedOpportunity[], bank: number, frac: number, u
   return parlays.sort((a, b) => b.ev - a.ev).slice(0, 3);
 }
 
-export default function AutoParlays({ opportunities, currentBank, kellyFrac, unitPct, onRegister }: Props) {
+export default function AutoParlays({ opportunities, currentBank, kellyFrac, unitPct, blocked, onRegister }: Props) {
   const parlays = useMemo(
     () => buildParlays(opportunities, currentBank, kellyFrac, unitPct),
     [opportunities, currentBank, kellyFrac, unitPct]
@@ -125,13 +126,14 @@ export default function AutoParlays({ opportunities, currentBank, kellyFrac, uni
             </div>
           </div>
           <div className="aparlay-actions">
-            <button className="btn go" onClick={() => onRegister(
-              p.legs.map((l) => l.pick).join(" + "),
-              Number(p.oddsComb.toFixed(2)),
-              Math.round(p.stake),
-              Number(p.probComb.toFixed(5))
-            )}>
-              <Plus size={14} /> Registrar parlay
+            <button className="btn go" disabled={blocked} title={blocked ? "Stop-loss activado — pausa" : undefined}
+              onClick={() => onRegister(
+                p.legs.map((l) => l.pick).join(" + "),
+                Number(p.oddsComb.toFixed(2)),
+                Math.round(p.stake),
+                Number(p.probComb.toFixed(5))
+              )}>
+              <Plus size={14} /> {blocked ? "En pausa" : "Registrar parlay"}
             </button>
           </div>
           <div className="aparlay-warn">
