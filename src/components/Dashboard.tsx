@@ -223,6 +223,28 @@ export default function Dashboard({ initialConfig, initialOpportunities, initial
     window.location.href = "/login";
   };
 
+  // Escaneo bajo demanda (botón "Escanear ahora")
+  const [scanning, setScanning] = useState(false);
+  const [scanMsg, setScanMsg] = useState<string | null>(null);
+  const rescan = async () => {
+    if (demo) { startRefresh(() => router.refresh()); return; }
+    setScanning(true); setScanMsg(null);
+    try {
+      const r = await fetch("/api/rescan", { method: "POST" });
+      const j = await r.json();
+      if (j.throttled) setScanMsg(j.message);
+      else if (j.error) setScanMsg("Error: " + j.error);
+      else {
+        setScanMsg(`✓ ${j.total} oportunidades · ${j.credits_remaining ?? "?"} créditos restantes`);
+        startRefresh(() => router.refresh());
+      }
+    } catch (e) {
+      setScanMsg("No se pudo escanear: " + e);
+    } finally {
+      setScanning(false);
+    }
+  };
+
   return (
     <div className="sv-root">
       <div className="sv-wrap">
@@ -234,13 +256,13 @@ export default function Dashboard({ initialConfig, initialOpportunities, initial
             </div>
           </div>
           <div className="sv-status">
-            <div className="pill"><span className="dot" />escaneo <b>diario</b></div>
             <div className="pill"><Clock size={13} />escaneado <b className="mono">{demo ? "demo" : fmtAgo(lastScan)}</b></div>
-            <button className="refresh-btn" onClick={() => startRefresh(() => router.refresh())} disabled={isRefreshing}>
-              <RefreshCw size={13} className={isRefreshing ? "spin" : ""} /> {isRefreshing ? "Actualizando…" : "Actualizar"}
+            <button className="refresh-btn" onClick={rescan} disabled={scanning || isRefreshing}>
+              <RefreshCw size={13} className={scanning || isRefreshing ? "spin" : ""} /> {scanning ? "Escaneando…" : "Escanear ahora"}
             </button>
             <Link href="/estudio" className="refresh-btn"><TrendingUp size={13} /> El estudio</Link>
             {gated && <button className="logout-link" onClick={logout}>salir</button>}
+            {scanMsg && <div className="scan-msg">{scanMsg}</div>}
           </div>
         </header>
 

@@ -36,6 +36,8 @@ html, body { margin: 0; padding: 0; background: #0d1117; }
 .refresh-btn:hover{border-color:var(--gold-line);background:var(--surface-2);}
 .refresh-btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
 .refresh-btn:disabled{opacity:.6;cursor:default;}
+.scan-msg{flex-basis:100%;font-size:11.5px;font-family:'IBM Plex Mono';color:var(--dim);margin-top:6px;
+  background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 10px;}
 @keyframes spin{to{transform:rotate(360deg);}}
 .spin{animation:spin 1s linear infinite;}
 @media(prefers-reduced-motion:reduce){.spin{animation:none;}}
